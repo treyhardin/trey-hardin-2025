@@ -20,7 +20,7 @@ export default defineConfig({
   adapter: cloudflare({
     imageService: 'cloudflare',
   }),
-  output: 'server',
+  output: 'static',
   vite: {
     resolve: {
       // Use react-dom/server.edge instead of react-dom/server.browser for React 19.
