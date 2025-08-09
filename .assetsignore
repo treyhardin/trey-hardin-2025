@@ -1,0 +1,2 @@
+# Prevent _worker.js from being uploaded as a static asset
+_worker.js

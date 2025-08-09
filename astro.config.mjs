@@ -22,5 +22,6 @@ export default defineConfig({
       enabled: true,
     },
     imageService: 'cloudflare',
-  })
+  }),
+  output: 'static'
 });
