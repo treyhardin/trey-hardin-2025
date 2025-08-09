@@ -3,5 +3,6 @@
   "compatibility_date": "2025-08-09",
   "compatibility_flags": [
     "nodejs_compat"
-  ]
+  ],
+  "main": "dist/_worker.js"
 }
