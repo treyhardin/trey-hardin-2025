@@ -1,7 +1,7 @@
 {
   "name": "portfolio-2025",
   "compatibility_date": "2025-08-09",
-  "assets": {
-    "directory": "./dist"
-  }
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
 }
