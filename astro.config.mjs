@@ -18,12 +18,9 @@ export default defineConfig({
     react()
   ],
   adapter: cloudflare({
-    platformProxy: {
-      enabled: true,
-    },
     imageService: 'cloudflare',
   }),
-  output: 'static',
+  output: 'server',
   vite: {
     resolve: {
       // Use react-dom/server.edge instead of react-dom/server.browser for React 19.
@@ -31,6 +28,9 @@ export default defineConfig({
       alias: import.meta.env.PROD && {
         "react-dom/server": "react-dom/server.edge",
       },
+    },
+    ssr: {
+      external: ['node:buffer', 'node:util', 'node:worker_threads']
     },
   },
 });
