@@ -8,7 +8,7 @@ import SanityImage from "../components/SanityImage.astro";
 
 export const prerender = true
 
-const homePageSettings = await sanityClient.fetch(`*[_type == "pageHome"][0]{
+const homePageSettings = await sanityClient?.fetch(`*[_type == "pageHome"][0]{
 	title,
 	heroImage{${imageQuery}},
 }`)
