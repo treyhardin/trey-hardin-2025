@@ -1,0 +1,48 @@
+---
+import "../styles/base.css";
+import "../styles/typography.css";
+import "../styles/spacing.css";
+import "../styles/color.css";
+import "../styles/animation.css";
+import "../styles/input.css";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+
+const pageTitle = `${title} | Trey Hardin`;
+---
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+    <!-- HTML Meta Tags -->
+    <title>{pageTitle}</title>
+    <meta name="description" content={description}>
+
+    <!-- Facebook Meta Tags -->
+    <meta property="og:url" content="https://treyhardin.com">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content={pageTitle}>
+    <meta property="og:description" content={description}>
+    <meta property="og:image" content="https://cdn.prod.website-files.com/5ee2d6359710d5894537c87a/5ef17dffbd315b4d5cfff1b4_portfolio-2020-5dc62e.webflow.io_.png">
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content="treyhardin.com">
+    <meta property="twitter:url" content="https://treyhardin.com">
+    <meta name="twitter:title" content={pageTitle}>
+    <meta name="twitter:description" content={description}>
+    <meta name="twitter:image" content="https://cdn.prod.website-files.com/5ee2d6359710d5894537c87a/5ef17dffbd315b4d5cfff1b4_portfolio-2020-5dc62e.webflow.io_.png">
+
+    <!-- Meta Tags Generated via https://www.opengraph.xyz -->
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

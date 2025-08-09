@@ -1,0 +1,1 @@
+export const imageQuery = 'asset->{ metadata, url }, alt'

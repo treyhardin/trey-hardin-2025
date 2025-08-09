@@ -1,0 +1,43 @@
+---
+import { Image } from 'astro:assets';
+import { urlFor } from '../lib/sanity-client';
+
+interface Props {
+  image: {
+    alt: string;
+    asset: {
+      metadata: {
+        _type: string;
+        blurHash: string;
+        dimensions: {
+          _type: string;
+          aspectRatio: number;
+          width: number;
+          height: number;
+        };
+        hasAlpha: boolean;
+        isOpaque: boolean;
+        lqip: string;
+        palette: any;
+      },
+      url: string;
+    }
+  },
+  sizes: string;
+  layout?: 'constrained' | 'full-width' | 'fixed' | 'none';
+  priority?: boolean;
+}
+
+const { image, sizes, layout, priority } = Astro.props
+console.log(image.asset.metadata)
+---
+<Image 
+  src={urlFor(image.asset.url).auto('format').url()}
+  alt={image.alt}
+  sizes={sizes}
+  width={image.asset.metadata.dimensions.width}
+  height={image.asset.metadata.dimensions.height}
+  layout={layout ? layout: "constrained"}
+  priority={priority ? priority : false}
+/>
+

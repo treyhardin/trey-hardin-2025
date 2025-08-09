@@ -1,16 +1,25 @@
 ---
+import LayoutGlobal from "../layouts/LayoutGlobal.astro";
+import { sanityClient } from "sanity:client"
+import { imageQuery } from "../lib/sanity-queries"
+import { Image } from "astro:assets";
+import { urlFor } from "../lib/sanity-client"
+import SanityImage from "../components/SanityImage.astro";
 
+const homePageSettings = await sanityClient.fetch(`*[_type == "pageHome"][0]{
+	title,
+	heroImage{${imageQuery}},
+}`)
 ---
-
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<LayoutGlobal
+	title="Home"
+	description="New York City digital design director specializing in e-commerce for fashion & luxury brands."
+>
+  <h1>{homePageSettings.title}</h1>
+	<SanityImage 
+		image={homePageSettings.heroImage}
+		sizes="100vw"
+		layout="full-width"
+		priority
+	/>
+</LayoutGlobal>
