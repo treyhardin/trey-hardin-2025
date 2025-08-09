@@ -29,12 +29,24 @@ interface Props {
 }
 
 const { image, sizes, layout, priority } = Astro.props
-console.log(image.asset.metadata)
+
+let srcSet = `${urlFor(image.asset.url).auto('format').url()} ${image.asset.metadata.dimensions.width}w`
+let sourceIndex = 1
+const scaleFactor = 0.5
+
+for (let i = 0; i < 3; i++) {
+  const size = Math.floor(image.asset.metadata.dimensions.width * (scaleFactor / sourceIndex))
+  const url = `${urlFor(image.asset.url).auto('format').width(size).url()} ${size}w`
+  sourceIndex++
+  const newSrcSet = srcSet.concat(", ", url)
+  srcSet = newSrcSet
+}
 ---
 <Image 
   src={urlFor(image.asset.url).auto('format').url()}
   alt={image.alt}
   sizes={sizes}
+  srcset={srcSet}
   width={image.asset.metadata.dimensions.width}
   height={image.asset.metadata.dimensions.height}
   layout={layout ? layout: "constrained"}

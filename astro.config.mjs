@@ -9,12 +9,12 @@ import cloudflare from '@astrojs/cloudflare';
 // https://astro.build/config
 export default defineConfig({
   integrations: [
-    // sanity({
-    //   projectId: '4wsnsase',
-    //   dataset: 'production',
-    //   useCdn: false, // See note on using the CDN
-    //   studioBasePath: '/admin',
-    // }), 
+    sanity({
+      projectId: '4wsnsase',
+      dataset: 'production',
+      useCdn: false, // See note on using the CDN
+      studioBasePath: '/admin',
+    }), 
     react()
   ],
   adapter: cloudflare({
