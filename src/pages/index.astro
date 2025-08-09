@@ -8,20 +8,21 @@ import SanityImage from "../components/SanityImage.astro";
 
 export const prerender = true
 
-const homePageSettings = await sanityClient?.fetch(`*[_type == "pageHome"][0]{
-	title,
-	heroImage{${imageQuery}},
-}`)
+// const homePageSettings = await sanityClient?.fetch(`*[_type == "pageHome"][0]{
+// 	title,
+// 	heroImage{${imageQuery}},
+// }`)
 ---
 <LayoutGlobal
 	title="Home"
 	description="New York City digital design director specializing in e-commerce for fashion & luxury brands."
 >
-  <h1>{homePageSettings.title}</h1>
+<h1>TEST</h1>
+  <!-- <h1>{homePageSettings.title}</h1>
 	<SanityImage 
 		image={homePageSettings.heroImage}
 		sizes="100vw"
 		layout="full-width"
 		priority
-	/>
+	/> -->
 </LayoutGlobal>
