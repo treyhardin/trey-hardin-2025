@@ -17,5 +17,10 @@ export default defineConfig({
     }), 
     react()
   ],
-  adapter: cloudflare()
+  adapter: cloudflare({
+    platformProxy: {
+      enabled: true,
+    },
+    imageService: 'cloudflare',
+  })
 });
