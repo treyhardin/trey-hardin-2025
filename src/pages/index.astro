@@ -2,38 +2,29 @@
 import LayoutGlobal from "../layouts/LayoutGlobal.astro";
 import { sanityClient } from "sanity:client"
 import { imageQuery } from "../lib/sanity-queries"
-import { Image } from "astro:assets";
-import { urlFor } from "../lib/sanity-client"
 import SanityImage from "../components/SanityImage.astro";
+import VideoStream from "../components/VideoStream.astro";
+import Hero from "../components/SectionHero.astro";
+import ThreeScene from "../components/3DScene.astro";
 
 const homePageSettings = await sanityClient.fetch(`*[_type == "pageHome"][0]{
 	title,
+	subtitle,
 	heroImage{${imageQuery}},
 }`)
-console.log(homePageSettings)
 ---
 <LayoutGlobal
 	title="Home"
 	description="New York City digital design director specializing in e-commerce for fashion & luxury brands."
+	largeLogo={true}
 >
-	<section class="hero">
-		<h1>{homePageSettings.title}</h1>
-		<SanityImage 
-			image={homePageSettings.heroImage}
-			sizes="100vw"
-			layout="full-width"
-			priority
-		/>
-	</section>
+
+	<Hero 
+		title={homePageSettings.title}
+		subtitle={homePageSettings.subtitle}
+	/>
+	<!-- <ThreeScene /> -->
+	<!-- <VideoStream /> -->
+
 </LayoutGlobal>
 
-<style>
-	.hero {
-		width: 100%;
-
-		img {
-			width: 100%;
-			height: auto;
-		}
-	}
-</style>

@@ -1,0 +1,96 @@
+---
+import Linkedin from "../icons/linkedin.svg";
+import Contact from "../icons/contact.svg";
+import Instagram from "../icons/instagram.svg";
+---
+<footer class="footer">
+  <nav class="navigation">
+    <!-- {navigation.map((navLink: any) => (
+      <a href={navLink.url} class="link utility">{navLink.label}</a>
+    ))} -->
+    <a href="https://www.linkedin.com/in/treyhardin/" class="social-icon">
+      <Linkedin />
+    </a>
+    <a href="https://www.linkedin.com/in/treyhardin/" class="social-icon">
+      <Instagram />
+    </a>
+  </nav>
+  <div class="clock">
+    <p class="h3" id="current-time">12:00:00 AM EST</p>
+    <p class="h3">NYC, USA</p>
+  </div>
+</footer>
+
+<script>
+  function updateTime() {
+    const timeElement = document.getElementById('current-time');
+    if (!timeElement) return;
+    
+    const now = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+      timeZone: 'America/New_York',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    };
+    
+    const timeString = now.toLocaleTimeString('en-US', options);
+    timeElement.textContent = timeString;
+    
+    requestAnimationFrame(updateTime);
+  }
+  
+  updateTime();
+</script>
+
+
+<style>
+  .footer {
+    /* background-color: var(--color-background); */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--page-margin);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    .navigation,
+    .clock {
+      border-bottom: 1px solid var(--color-foreground);
+      padding: var(--crop-mark-padding);
+      min-width: var(--crop-mark-width);
+      min-height: var(--crop-mark-height);
+    }
+
+    .navigation {
+      display: flex;
+      flex-direction: row;
+      gap: var(--space-sm);
+      border-left: 1px solid var(--color-foreground);
+
+      .link {
+        border-top: 1px solid var(--color-foreground);
+        border-left: 1px solid var(--color-foreground);
+        padding: 0.8em 1em 0;
+      }
+
+      .social-icon {
+        width: var(--icon-sm);
+        height: var(--icon-sm);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--color-foreground);
+      }
+    }
+
+    .clock {
+      text-align: right;
+      border-right: 1px solid var(--color-foreground);
+    }
+  }
+</style>

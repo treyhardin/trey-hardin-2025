@@ -1,0 +1,182 @@
+* {
+  /* Fluid scaling system constants */
+  --bp-mobile: 375;
+  --bp-desktop: 1440;
+  --bp-diff: calc(var(--bp-desktop) - var(--bp-mobile)); /* 1065 */
+  --fluid-size: calc(1px * var(--mobile-size) + (var(--desktop-size) - var(--mobile-size)) * ((100vw - var(--bp-mobile) * 1px) / var(--bp-diff)));
+}
+
+:root {
+  --font-family-primary: "AeonikPro", Helvetica, sans-serif;
+  --font-family-secondary: "DM Mono", monospace;
+}
+
+@font-face {
+  font-family: "AeonikPro";
+  src: url("/fonts/AeonikPro-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "DM Mono";
+  src: url("/fonts/DMMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: monospace;
+}
+
+/* @font-face {
+  font-family: 'NeueBit';
+  src: url("/fonts/NeueBit-Bold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'GT America';
+  src: url("/fonts/GT-America-Standard-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'GT America';
+  src: url("/fonts/GT-America-Standard-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'GT America';
+  src: url("/fonts/GT-America-Standard-Regular-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'GT America';
+  src: url("/fonts/GT-America-Standard-Medium.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+} */
+
+body {
+  font-family: var(--font-family-primary);
+  font-weight: 400;
+}
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3,
+h4,
+.h4,
+h5,
+.h5,
+h6,
+.h6 {
+  margin: 0;
+  text-wrap: balance;
+}
+
+p,
+a {
+  text-wrap: pretty;
+}
+
+h1,
+.h1 {
+  --mobile-size: 48;    /* 48px */
+  --desktop-size: 80; /* 120px */
+  font-family: var(--font-family-primary);
+  font-size: var(--fluid-size);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+h2,
+.h2 {
+  --mobile-size: 2.5rem;  /* 40px */
+  --desktop-size: 6rem;   /* 96px */
+  font-family: var(--font-family-primary);
+  font-size: var(--fluid-size);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+h3,
+.h3 {
+  --mobile-size: 24;
+  --desktop-size: 32;
+  font-family: var(--font-family-primary);
+  font-size: var(--fluid-size);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+h4,
+.h4 {
+  --mobile-size: 1.5rem;  /* 24px */
+  --desktop-size: 2.25rem; /* 36px */
+  font-family: var(--font-family-primary);
+  font-size: var(--fluid-size);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+h5,
+.h5 {
+  --mobile-size: 1.25rem; /* 20px */
+  --desktop-size: 1.5rem; /* 24px */
+  font-family: var(--font-family-primary);
+  font-size: var(--fluid-size);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+h6,
+.h6 {
+  --mobile-size: 18;    /* 16px */
+  --desktop-size: 24; /* 18px */
+  font-family: var(--font-family-primary);
+  font-size: var(--fluid-size);
+  letter-spacing: -0.02em;
+  font-weight: 300;
+}
+
+.caption,
+.button {
+  --mobile-size: 10;
+  --desktop-size: 11;
+  font-family: var(--font-family-primary);
+  font-size: var(--fluid-size);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.utility {
+  --mobile-size: 10;
+  --desktop-size: 11;
+  font-family: var(--font-family-secondary);
+  font-size: var(--fluid-size);
+  text-transform: uppercase;
+  letter-spacing: 0.0em;
+  font-style: monospace;
+  font-weight: 400;
+}
+
+body {
+  --mobile-size: 14;
+  --desktop-size: 16;
+  font-family: var(--font-family-primary);
+  font-size: var(--fluid-size);
+  letter-spacing: 0em;
+  font-weight: 300;
+}

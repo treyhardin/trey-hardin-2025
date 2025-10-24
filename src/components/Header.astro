@@ -1,0 +1,123 @@
+---
+const { navigation, largeLogo } = Astro.props;
+---
+<header class="header" >
+  <a 
+    href="/" 
+    class="brand" 
+    id="logo"
+    data-animate-scroll={largeLogo ? "true" : "false"}
+    style={`--scroll-progress: ${largeLogo ? "0" : "1"};`}
+  >
+    <span>Trey</span>
+    <span class="brand-secondary">Hardin</span>
+  </a>
+  <nav class="navigation">
+    <button class="navigation-link h6">Work</button>
+    <a class="navigation-link h6" href="/blog">Blog</a>
+    <button class="navigation-link h6">About</button>
+  </nav>
+</header>
+
+<script>
+  import { lenis } from '../lib/lenis-provider.js';
+  import { throttle } from '../lib/scripts.js';
+
+  const scrollThreshold = window.innerHeight * 0.5;
+
+  document.addEventListener('astro:page-load', () => {
+
+    const logo = document.getElementById('logo');
+
+    if (lenis && logo && logo.dataset.animateScroll === 'true') {
+      
+      // const handleScroll = throttle((e) => {
+      //   const currentScroll = e.animatedScroll;
+      //   const scrollProgress = Math.floor(Math.min(1, currentScroll / scrollThreshold) * 1000) / 1000;
+      //   logo.style.setProperty('--scroll-progress', scrollProgress.toString());
+      // }, 16); // ~60fps (1000ms / 60fps ≈ 16ms)
+
+      const handleScroll = throttle((e) => {
+        const currentScroll = e.animatedScroll;
+        // const scrollProgress = Math.floor(Math.min(1, currentScroll / scrollThreshold) * 1000) / 1000;
+        currentScroll <= scrollThreshold ? logo.dataset.animateScroll = 'true' : logo.dataset.animateScroll = 'false';
+        // logo.style.setProperty('--scroll-progress', scrollProgress.toString());
+      }, 16); // ~60fps (1000ms / 60fps ≈ 16ms)
+
+      lenis.on('scroll', handleScroll);
+    }
+  });
+
+</script>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    padding: var(--page-margin);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    height: var(--header-height);
+
+    .brand {
+      font-size: 2rem;
+      letter-spacing: -0.05em;
+      margin-block: -0.2em;
+      display: flex;
+      flex-direction: row;
+      gap: 0.25ch;
+      transition: font-size var(--anim-md);
+      overflow: hidden;
+
+      .brand-secondary {
+        translate: 0 0%;
+        transition: translate var(--anim-md) 0.4s;
+        display: inline-block;
+      }
+
+      &[data-animate-scroll="true"] {
+        font-size: 19vw;
+        transition-delay: 0.4s;
+
+        .brand-secondary {
+          translate: 0 100%;
+          transition-delay: 0s;
+        }
+      }
+    }
+
+    .navigation {
+      display: flex;
+      flex-direction: row;
+      gap: var(--space-2xs);
+      min-width: calc(50% - var(--page-margin) / 2);
+      align-self: stretch;
+
+      .navigation-link {
+        border: 1px solid var(--color-foreground);
+        padding: var(--space-3xs) var(--space-2xs);
+        border-radius: var(--radius-md);
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        background-color: var(--color-background);
+
+        &::after {
+          content: "";
+          display: block;
+          border-radius: var(--radius-rounded);
+          border: 1px solid var(--color-foreground);
+          flex: 0 0 0.2em;
+          aspect-ratio: 1 / 1;
+        }
+      }
+    }
+  }
+
+</style>

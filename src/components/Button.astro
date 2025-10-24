@@ -1,0 +1,4 @@
+---
+const { label, url, newTab } = Astro.props;
+---
+<a href={url} class="button" target={newTab ? "_blank" : "_self"}>{label}</a>

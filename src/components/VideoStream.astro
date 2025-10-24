@@ -1,0 +1,341 @@
+---
+---
+<video id="stream-video" width="100px" height="100px" autoplay muted></video>
+<canvas id="stream-canvas" width="100%" height="100%"></canvas>
+
+<script>
+  import Hls from 'hls.js';
+  import Regl from "regl"
+
+  if (Hls.isSupported()) {
+    const video = document.getElementById('stream-video') as HTMLVideoElement;
+    const canvas = document.getElementById('stream-canvas') as HTMLCanvasElement;
+
+    const initStream = () => {
+      if (!video) return
+      const hls = new Hls();
+      hls.loadSource('http://173.255.227.167:8080/hls/pi2b.m3u8');
+      hls.attachMedia(video);
+      initWebGL()
+    }
+
+    const initWebGL = () => {
+      if (!canvas) return;
+
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        video.addEventListener('loadedmetadata', initWebGL, { once: true });
+        return;
+      }
+
+      let mouseX = 0.5;
+      let mouseY = 0.5;
+      let smoothMouseX = 0.5;
+      let smoothMouseY = 0.5;
+      let lastMouseX = 0.5;
+      let lastMouseY = 0.5;
+      let mouseSpeed = 0;
+      let smoothMouseSpeed = 0;
+
+      let canvasRect = video.getBoundingClientRect();
+
+      window.addEventListener("mousemove", (e) => {
+        // Use cached rect (updated by resize observer)
+        const rect = canvasRect;
+        
+        // Get raw mouse position relative to video element
+        const rawX = (e.clientX - rect.left) / rect.width;
+        const rawY = (e.clientY - rect.top) / rect.height;
+        
+        // Calculate video aspect ratio and container aspect ratio
+        const videoAspect = video.videoWidth / video.videoHeight;
+        const containerAspect = rect.width / rect.height;
+        
+        if (videoAspect > containerAspect) {
+          // Video is wider - it fills height, crops width
+          const videoDisplayWidth = rect.height * videoAspect;
+          const cropX = (videoDisplayWidth - rect.width) / 2;
+          mouseX = Math.min(Math.max((rawX * rect.width + cropX) / videoDisplayWidth, 0), 1);
+          mouseY = Math.min(Math.max(rawY, 0), 1);
+        } else {
+          // Video is taller - it fills width, crops height  
+          const videoDisplayHeight = rect.width / videoAspect;
+          const cropY = (videoDisplayHeight - rect.height) / 2;
+          mouseX = Math.min(Math.max(rawX, 0), 1);
+          mouseY = Math.min(Math.max((rawY * rect.height + cropY) / videoDisplayHeight, 0), 1);
+        }
+        
+        // Calculate mouse movement speed
+        const deltaX = mouseX - lastMouseX;
+        const deltaY = mouseY - lastMouseY;
+        const instantSpeed = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        // Smooth the speed calculation (more responsive for quick gestures)
+        mouseSpeed = mouseSpeed * 0.6 + instantSpeed * 0.4;
+        
+        // Cap speed to prevent extreme values
+        mouseSpeed = Math.min(mouseSpeed, 0.8);
+        
+        // Update last position
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+      })
+
+      const reglCanvas = Regl(canvas);
+
+      // Set initial canvas size
+      const updateCanvasSize = () => {
+        canvasRect = video.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        
+        // Calculate actual displayed video size with object-fit: cover
+        const videoAspect = video.videoWidth / video.videoHeight;
+        const containerAspect = canvasRect.width / canvasRect.height;
+        
+        let displayWidth, displayHeight;
+        if (videoAspect > containerAspect) {
+          // Video is wider - height fills container, width is cropped
+          displayHeight = canvasRect.height;
+          displayWidth = displayHeight * videoAspect;
+        } else {
+          // Video is taller - width fills container, height is cropped
+          displayWidth = canvasRect.width;
+          displayHeight = displayWidth / videoAspect;
+        }
+        
+        canvas.width = displayWidth * dpr;
+        canvas.height = displayHeight * dpr;
+        
+        // Update WebGL viewport to match new canvas size
+        reglCanvas.poll();
+      };
+
+      updateCanvasSize();
+
+      // Throttle function to limit resize calls using RAF for better performance
+      let resizeRAF: number = 0;
+      const throttledUpdateCanvasSize = () => {
+        if (resizeRAF) cancelAnimationFrame(resizeRAF);
+        resizeRAF = requestAnimationFrame(updateCanvasSize);
+      };
+
+      // Watch for size changes
+      const resizeObserver = new ResizeObserver(throttledUpdateCanvasSize);
+      resizeObserver.observe(video);
+      const videoTexture = reglCanvas.texture({
+        width: video.videoWidth,
+        height: video.videoHeight,
+        format: 'rgba'
+      });
+
+
+      // Vertex shader - creates a fullscreen quad
+      const vertexShader = `
+          attribute vec2 position;
+          varying vec2 uv;
+          void main() {
+              uv = position * 0.5 + 0.5;
+              gl_Position = vec4(position, 0, 1);
+          }
+      `;
+
+      // Fragment shader with pixelate effect
+      const fragmentShader = `
+        precision mediump float;
+        uniform sampler2D video;
+        uniform float mouseX;
+        uniform float mouseY;
+        uniform float time;
+        uniform float cursorSize;
+        uniform float mouseSpeed;
+        varying vec2 uv;
+
+        void main() {
+          vec2 flippedUV = vec2(uv.x, 1.0 - uv.y);
+          
+          // Calculate distance and direction from cursor (reused by multiple effects)
+          vec2 cursorPos = vec2(mouseX, 1.0 - mouseY); // Flip Y to match flippedUV
+          vec2 cursorDirection = uv - cursorPos;
+          
+          // Scale cursor size based on movement speed with dramatic range
+          float minSpeedMultiplier = 0.1; // Very small effects when stationary  
+          float maxSpeedMultiplier = 15.0; // Massive effects when moving fast
+          float speedMultiplier = minSpeedMultiplier + mouseSpeed * maxSpeedMultiplier;
+          float speedBasedSize = cursorSize * speedMultiplier;
+          float cursorDistance = length(cursorDirection) / speedBasedSize;
+          vec2 normalizedCursorDirection = normalize(cursorDirection);
+          
+          // Warp the texture coordinates based on cursor position
+          float textureWarpRadius = 0.3; // Area of warping effect
+          float textureWarpStrength = -0.01; // Base intensity (size scaling provides the dynamic effect)
+          float textureWarpMinimum = 0.1; // Minimum warp effect
+          float textureWarpFalloff = 1.0 - smoothstep(0.0, textureWarpRadius, cursorDistance);
+          
+          // Apply radial warp to UV coordinates
+          vec2 textureWarpOffset = normalizedCursorDirection * max(textureWarpFalloff, textureWarpMinimum) * textureWarpStrength;
+          
+          // VHS-style horizontal wobble
+          float vhsWobbleSpeed = 2.0; // Speed of wobble
+          float vhsWobbleAmount = 0.0003; // Intensity of wobble (very subtle)
+          float vhsWobbleFrequency = 50.0; // Vertical frequency of wobble pattern
+          
+          // Create wobble that varies by Y position and time
+          float vhsWobble = sin(flippedUV.y * vhsWobbleFrequency + time * vhsWobbleSpeed) * vhsWobbleAmount;
+          
+          vec2 warpedUV = flippedUV + vec2(textureWarpOffset.x + vhsWobble, -textureWarpOffset.y); // Add wobble to X
+          
+          // RGB split effect based on cursor distance
+          float rgbSplitRadius = 0.5; // Effect radius
+          float rgbSplitMinimum = 0.2; // Minimum RGB split effect
+          float rgbSplitFalloff = 1.0 - smoothstep(0.0, rgbSplitRadius, cursorDistance);
+          
+          // RGB split strength (size scaling provides the dynamic effect)
+          float rgbSplitStrength = max(rgbSplitFalloff, rgbSplitMinimum) * 0.02;
+          vec2 rgbSplitOffset = vec2(rgbSplitStrength, 0.0);
+          
+          // Sample each color channel at different offsets using warped UV
+          float r = texture2D(video, warpedUV - rgbSplitOffset).r;
+          float g = texture2D(video, warpedUV).g;
+          float b = texture2D(video, warpedUV + rgbSplitOffset).b;
+          
+          vec3 color = vec3(r, g, b);
+          
+          // Desaturate based on distance from cursor
+          float desaturationRadius = 1.5; // Area that stays saturated
+          float desaturationFalloff = 1.0 - smoothstep(0.0, desaturationRadius, cursorDistance);
+          float desaturationMinimum = 0.9;
+          
+          // Convert to grayscale using luminance weights
+          float grayscaleValue = dot(color, vec3(0.299, 0.587, 0.114));
+          
+          // Mix between grayscale and color based on cursor proximity
+          color = mix(vec3(grayscaleValue), color, max(desaturationFalloff, desaturationMinimum));
+          
+          // VHS scan lines with cursor distortion
+          float scanlineIntensity = 0.025; // Line darkness
+          float scanlineCount = 600.0; // Number of lines (higher = thinner lines)
+          float scanlineSpeed = -0.01; // Movement speed
+          
+          // Create circular scanline distortion around cursor
+          float scanlineDistortionRadius = 0.25; // Distortion area size
+          float scanlineDistortionStrength = 0.06; // How much to push lines away
+          float scanlineDistortionMinimum = 0.02; // Minimum scanline distortion effect
+          float scanlineDistortionFactor = 1.0 - smoothstep(0.0, scanlineDistortionRadius, cursorDistance);
+          
+          // Use pre-calculated direction vector
+          
+          // Push scanlines radially outward from cursor
+          float scanlineYDistortion = max(scanlineDistortionFactor, scanlineDistortionMinimum) * scanlineDistortionStrength * normalizedCursorDirection.y;
+          
+          // Apply distortion to scanline position
+          float scanlineDistortedY = flippedUV.y + scanlineYDistortion + time * scanlineSpeed;
+          float scanlineEffect = sin(scanlineDistortedY * scanlineCount) * scanlineIntensity + 1.0;
+          
+          color *= scanlineEffect;
+          
+          // Subtle vignette effect
+          vec2 vignetteUV = uv - 0.5; // Center the coordinates
+          float vignetteDistance = length(vignetteUV);
+          float vignetteEffect = 1.0 - smoothstep(0.3, 0.8, vignetteDistance);
+          vignetteEffect = mix(0.2, 1.0, vignetteEffect); // Subtle darkening, not complete black
+          
+          color *= vignetteEffect;
+          
+          // Film grain/noise
+          float filmGrainStrength = 0.2; // Intensity of grain
+          
+          // Simple pseudo-random noise function
+          vec2 filmGrainUV = flippedUV + time * 0.1; // Add time for animated grain
+          float filmGrainNoise = fract(sin(dot(filmGrainUV, vec2(12.9898, 78.233))) * 43758.5453);
+          filmGrainNoise = (filmGrainNoise - 0.5) * filmGrainStrength; // Center around 0 and scale
+          
+          // Add grain to all color channels
+          color += vec3(filmGrainNoise);
+          
+          gl_FragColor = vec4(color, 1.0);
+        }
+    `;
+
+      // Create the draw command
+      const drawVideo = reglCanvas({
+        frag: fragmentShader,
+        vert: vertexShader,
+        
+        attributes: {
+            position: [
+                [-1, -1], [1, -1], [1, 1],
+                [-1, -1], [1, 1], [-1, 1]
+            ]
+        },
+
+        uniforms: {
+            video: videoTexture,
+            mouseX: () => smoothMouseX,
+            mouseY: () => smoothMouseY,
+            time: () => (Date.now() * 0.001) % 1.0,
+            cursorSize: 1, // Controls cursor effect area size (larger = bigger area)
+            mouseSpeed: () => smoothMouseSpeed, // Smoothed mouse movement speed
+        },
+
+        count: 6
+      });
+
+      // Animation loop
+      function render() {
+          // Smooth mouse interpolation (lerp towards target)
+          const positionLerpFactor = 0.08; // Lower = smoother but slower, higher = faster but less smooth
+          smoothMouseX += (mouseX - smoothMouseX) * positionLerpFactor;
+          smoothMouseY += (mouseY - smoothMouseY) * positionLerpFactor;
+          
+          // Smooth speed interpolation (for size scaling)
+          const speedLerpFactor = 0.12; // Slightly faster than position for responsive size changes
+          smoothMouseSpeed += (mouseSpeed - smoothMouseSpeed) * speedLerpFactor;
+          
+          // Update video texture
+          if (video.readyState >= video.HAVE_CURRENT_DATA) {
+              videoTexture.subimage(video, 0, 0);
+          }
+
+          // Clear and draw
+          reglCanvas.clear({
+              color: [0, 0, 0, 1]
+          });
+
+          drawVideo();
+          
+          requestAnimationFrame(render);
+      }
+
+      render();
+
+      // Handle video loading errors
+      video?.addEventListener('error', function(e) {
+          console.error('Video failed to load:', e);
+          // You can add a fallback or error message here
+      });
+    }
+
+    initStream()
+
+  }
+</script>
+
+<style>
+  #stream-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    visibility: hidden;
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+
+  #stream-canvas {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    object-fit: cover;
+  }
+</style>

@@ -1,0 +1,352 @@
+---
+import VideoStream from "./VideoStream.astro";
+import Button from "./Button.astro";
+import Design from "../icons/design.svg"
+import Code from "../icons/code.svg"
+import Commerce from "../icons/commerce.svg"
+import ThreeScene from "../components/3DScene.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+
+const { title, subtitle } = Astro.props;
+---
+<section class="hero">
+  <div class="media">
+    <ThreeScene />
+  </div>
+  <div class="content">
+    <div class="section-header">
+      <div class="section-title">
+        <p class="caption">Digital Design Director & Creative Developer Specializing in Luxury Ecommerce and experimental technology</p>
+        <Button label="Work" url="/work" />
+      </div>
+      <div class="icons">
+        <Design class="icon" />
+        <Code class="icon" />
+        <Commerce class="icon" />
+      </div>
+    </div>
+    <div class="ticker">
+      <svg class="ticker-line" width="100%" height="2" preserveAspectRatio="none">
+        <line x1="0" y1="1" x2="100%" y2="1" stroke="currentColor" stroke-width="1" stroke-dasharray="12 2" />
+      </svg>
+      <div class="ticker-track" id="ticker">
+        <span class="ticker-item ticker-time utility" id="time">12:00 PM EST</span>
+        <span class="ticker-item ticker-location utility" id="location">Brooklyn, NYC, USA</span>
+        <span class="ticker-item ticker-temperature utility" data-icon="clear" id="temperature">70F</span>
+      </div>
+      <svg class="ticker-line" width="100%" height="2" preserveAspectRatio="none">
+        <line x1="0" y1="1" x2="100%" y2="1" stroke="currentColor" stroke-width="1" stroke-dasharray="12 2" />
+      </svg>
+    </div>
+    <div class="projects">
+      <ProjectCard />
+      <ProjectCard />
+    </div>
+    
+    <!-- {subtitle && <p>{subtitle}</p>} -->
+    <!-- {title && <h1>{title}</h1>} -->
+  </div>
+
+  <p
+    class="brand" 
+    id="logo-secondaary"
+    data-animate-scroll="true"
+    style="--scroll-progress: 0;"
+  >Hardin</p>
+</section>
+
+<script>
+  import { lenis } from '../lib/lenis-provider.js';
+  import IconClear from "../icons/weather/Clear.svg?raw";
+  import IconCloudy from "../icons/weather/Cloudy.svg?raw";
+  import IconDrizzle from "../icons/weather/Drizzle.svg?raw";
+  import IconRain from "../icons/weather/Rain.svg?raw";
+  import IconSnow from "../icons/weather/Snow.svg?raw";
+  import IconThunderstorm from "../icons/weather/Thunderstorm.svg?raw";
+
+  // console.log(IconThunderstorm)
+
+  const WEATHER_LONGITUDE = -73.959435;
+  const WEATHER_LATITUDE = 40.717056;
+
+  const scrollThreshold = 200;
+
+  document.addEventListener('astro:page-load', () => {
+
+    // const logo = document.getElementById('logo-secondaary');
+
+    // if (lenis && logo && logo.dataset.animateScroll === 'true') {
+    //   lenis.on('scroll', (e) => {
+    //     const currentScroll = e.animatedScroll;
+    //     const scrollProgress = Math.floor(Math.min(1, currentScroll / scrollThreshold) * 1000) / 1000;
+    //     logo.style.setProperty('--scroll-progress', scrollProgress.toString());
+    //     // console.log(scrollProgress);
+    //     // console.log(e.animatedScroll);
+    //   });
+    // }
+
+    
+    const tickerElement = document.getElementById('ticker');
+    if (!tickerElement) return;
+
+    const updateTime = (element: HTMLElement) => {
+      if (!element) return;
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = {
+        timeZone: 'America/New_York',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+        timeZoneName: 'short'
+      };
+      const timeString = now.toLocaleTimeString('en-US', options);
+      element.textContent = timeString;
+      const interval = setInterval(() => updateTime(element), 1000);
+      return () => clearInterval(interval);
+    }
+
+    let currentWeather: {
+      temperature: number;
+      conditionsID: number;
+      main: string;
+      conditionsDescription: string;
+    } | null = null;
+
+    let weatherElement: string | null = null;
+
+    const getWeather = async (element: HTMLElement) => {
+    
+      if (!currentWeather) {
+        const weatherData = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=New York&appid=${import.meta.env.PUBLIC_OPEN_WEATHER_API_KEY}&units=imperial`);
+        const data = await weatherData.json();
+        currentWeather = {
+          temperature: data.main.temp,
+          conditionsID: data.weather[0].id,
+          main: data.weather[0].main,
+          conditionsDescription: data.weather[0].description,
+        }
+        if (!currentWeather.main) return;
+        switch (currentWeather.main) {
+          case "Thunderstorm":
+            weatherElement = IconThunderstorm;
+            break;
+          case "Drizzle":
+            weatherElement = IconDrizzle;
+            break;
+          case "Rain":
+            weatherElement = IconRain;
+            break;
+          case "Snow":
+            weatherElement = IconSnow;
+            break;
+          case "Atmosphere":
+            weatherElement = IconSnow;
+            break;
+          case "Clear":
+            weatherElement = IconClear;
+            break;
+          case "Clouds":
+            weatherElement = IconCloudy;
+            break;
+          default:
+            break;
+        }
+      }
+      element.innerHTML =`${weatherElement} ${Math.floor(currentWeather.temperature) + 'F'}`;
+    }
+
+    const duplicateChildren = () => {
+      if (!tickerElement) return;
+      const duplicateNodeCount = 3; // Only duplicate once for seamless loop
+      const cloneNodes = [];
+      for (let i = 0; i < duplicateNodeCount; i++) {
+        for (const child of tickerElement.children) {
+
+          // Queue for cloning
+          const newNode = child.cloneNode(true);
+
+          // If time element, add timer
+          if (child.classList.contains('ticker-time')) {
+            if (i === 0) { updateTime(child as HTMLElement) }
+            updateTime(newNode as HTMLElement);
+          }
+
+          if (child.classList.contains('ticker-temperature')) {
+            if (i === 0) getWeather(child as HTMLElement)
+            getWeather(newNode as HTMLElement);
+          }
+
+          cloneNodes.push(newNode);
+        }
+      }
+      tickerElement.append(...cloneNodes);
+      tickerElement.style.animationPlayState = 'running';
+    }
+
+    duplicateChildren();
+
+  });
+
+</script>
+
+<style>
+	.hero {
+		width: 100%;
+		height: calc(100dvh - var(--header-height));
+		position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    align-items: stretch;
+    padding-inline: var(--page-margin);
+    padding-block: var(--space-2xl) var(--page-margin);
+    gap: var(--page-margin);
+
+    .media,
+    .content {
+      flex: 0 0 calc(50% - var(--page-margin) / 2);
+    }
+
+    .media {
+      background-color: var(--color-background);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      border: 1px solid var(--color-foreground);
+      /* background: 
+        linear-gradient(var(--color-background) 0 0) padding-box,
+        linear-gradient(-45deg, var(--color-foreground), var(--color-background)) border-box;
+      border: 2px solid transparent;
+      border-radius: 15px; */
+      /* border: 1px solid linear-gradient(0deg, var(--color-background), var(--color-foreground)); */
+    }
+
+    .content {
+      /* background-color: red; */
+      display: flex;
+      flex-direction: column;
+      justify-content: stretch;
+      align-items: stretch;
+      gap: var(--space-2xs);
+      overflow: hidden;
+
+      .section-header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: var(--space-xs);
+        margin-bottom: var(--space-md);
+
+        .section-title {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: var(--space-2xs);
+          max-width: 18rem;
+          text-align: justify;
+        }
+
+        .icons {
+          display: flex;
+          flex-direction: row;
+          justify-content: flex-end;
+          align-items: center;
+          gap: var(--space-2xs);
+
+          .icon {
+            width: var(--icon-sm);
+            height: var(--icon-sm);
+          }
+        }
+
+      }
+
+      .ticker {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        overflow: hidden;
+        max-width: 100%;
+        gap: 0.1rem;
+
+        &:hover .ticker-track {
+          animation-play-state: paused;
+        }
+
+        &::before {
+          content: "";
+          display: block;
+          width: 100%;
+          background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23333' stroke-width='2' stroke-dasharray='10%2c 6' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+        }
+
+        .ticker-track {
+          display: flex;
+          flex-direction: row;
+          /* justify-content: space-between; */
+          align-items: center;
+          overflow: hidden;
+          min-width: max-content;
+          animation: ticker-animation 10s linear infinite;
+          animation-play-state: paused;
+
+          .ticker-item {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            svg {
+              width: 1.2em;
+              height: 1.2em;
+              margin-right: 0.25em;
+            }
+
+            &::after {
+              content: "·";
+              margin-inline: 1ch;
+            }
+          }
+        }
+
+      }
+    }
+
+    .projects {
+      display: flex;
+      flex-direction: row;
+      justify-content: stretch;
+      /* align-items: stretch; */
+      gap: var(--space-3xs);
+
+      * {
+        flex: 0 1 50%;
+      }
+    }
+
+	}
+
+  .brand {
+    position: absolute;
+    bottom: var(--page-margin);
+    right: var(--page-margin);
+    --font-max: 19.4vw;
+    --font-min: 2rem;
+    --font-range: calc(var(--font-max) - var(--font-min));
+    font-size: calc(var(--font-max) - var(--scroll-progress) * var(--font-range));
+    /* font-size: calc(15vw * var(--scroll-progress)); */
+    letter-spacing: -0.05em;
+    margin-block: 0 -0.18em;
+    pointer-events: none;
+  }
+
+  @keyframes ticker-animation {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-25%);
+    }
+  }
+</style>

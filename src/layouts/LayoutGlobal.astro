@@ -5,14 +5,22 @@ import "../styles/spacing.css";
 import "../styles/color.css";
 import "../styles/animation.css";
 import "../styles/input.css";
+import Header from "../components/Header.astro";
+import { ClientRouter } from "astro:transitions";
+import { getEntry } from "astro:content";
+import { sanityClient } from "sanity:client";
+import ProjectsMenu from "../components/ProjectsMenu.astro";
+import Footer from "../components/Footer.astro";
 
 interface Props {
   title: string;
   description: string;
+  largeLogo?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, largeLogo } = Astro.props;
 
+const settings = await getEntry('settings', 'site-settings')
 const pageTitle = `${title} | Trey Hardin`;
 ---
 <html lang="en">
@@ -43,6 +51,18 @@ const pageTitle = `${title} | Trey Hardin`;
     <!-- Meta Tags Generated via https://www.opengraph.xyz -->
   </head>
   <body>
+    <ClientRouter />
+    <Header 
+      navigation={settings?.data.navigation}
+      largeLogo={largeLogo}
+    />
+    <!-- <ProjectsMenu /> -->
     <slot />
+    <!-- <Footer /> -->
   </body>
 </html>
+
+<script>
+  import "../lib/lenis-provider.js";
+  import 'lenis/dist/lenis.css'
+</script>

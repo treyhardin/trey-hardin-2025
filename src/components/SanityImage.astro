@@ -36,6 +36,7 @@ const scaleFactor = 0.5
 
 for (let i = 0; i < 3; i++) {
   const size = Math.floor(image.asset.metadata.dimensions.width * (scaleFactor / sourceIndex))
+  console.log(size)
   const url = `${urlFor(image.asset.url).auto('format').width(size).url()} ${size}w`
   sourceIndex++
   const newSrcSet = srcSet.concat(", ", url)

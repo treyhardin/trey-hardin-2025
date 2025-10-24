@@ -1,0 +1,97 @@
+:root {
+
+  --space-3xl-desktop: 120;
+  --space-2xl-desktop: 80;
+  --space-xl-desktop: 60;
+  --space-lg-desktop: 40;
+  --space-md-desktop: 30;
+  --space-sm-desktop: 20;
+  --space-xs-desktop: 15;
+  --space-2xs-desktop: 10;
+  --space-3xs-desktop: 5;
+
+  --space-3xl-mobile: 80;
+  --space-2xl-mobile: 60;
+  --space-xl-mobile: 40;
+  --space-lg-mobile: 30;
+  --space-md-mobile: 20;
+  --space-sm-mobile: 15;
+  --space-xs-mobile: 10;
+  --space-2xs-mobile: 5;
+  --space-3xs-mobile: 2;
+
+  --space-3xl: calc(1px * var(--space-3xl-mobile) + (var(--space-3xl-desktop) - var(--space-3xl-mobile)) * ((100vw - var(--bp-mobile) * 1px) / var(--bp-diff)));
+  --space-2xl: calc(1px * var(--space-2xl-mobile) + (var(--space-2xl-desktop) - var(--space-2xl-mobile)) * ((100vw - var(--bp-mobile) * 1px) / var(--bp-diff)));
+  --space-xl: calc(1px * var(--space-xl-mobile) + (var(--space-xl-desktop) - var(--space-xl-mobile)) * ((100vw - var(--bp-mobile) * 1px) / var(--bp-diff)));
+  --space-lg: calc(1px * var(--space-lg-mobile) + (var(--space-lg-desktop) - var(--space-lg-mobile)) * ((100vw - var(--bp-mobile) * 1px) / var(--bp-diff)));
+  --space-md: calc(1px * var(--space-md-mobile) + (var(--space-md-desktop) - var(--space-md-mobile)) * ((100vw - var(--bp-mobile) * 1px) / var(--bp-diff)));
+  --space-sm: calc(1px * var(--space-sm-mobile) + (var(--space-sm-desktop) - var(--space-sm-mobile)) * ((100vw - var(--bp-mobile) * 1px) / var(--bp-diff)));
+  --space-xs: calc(1px * var(--space-xs-mobile) + (var(--space-xs-desktop) - var(--space-xs-mobile)) * ((100vw - var(--bp-mobile) * 1px) / var(--bp-diff)));
+  --space-2xs: calc(1px * var(--space-2xs-mobile) + (var(--space-2xs-desktop) - var(--space-2xs-mobile)) * ((100vw - var(--bp-mobile) * 1px) / var(--bp-diff)));
+  --space-3xs: calc(1px * var(--space-3xs-mobile) + (var(--space-3xs-desktop) - var(--space-3xs-mobile)) * ((100vw - var(--bp-mobile) * 1px) / var(--bp-diff)));
+
+  --page-margin: var(--space-xs);
+
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.625rem;
+  --radius-rounded: 100vw;
+
+  --icon-sm: 1rem;
+  /* --icon-sm: 0.875rem; */
+
+  /* --crop-mark-height: 4rem;
+  --crop-mark-width: 10rem;
+  --crop-mark-padding: var(--space-sm); */
+
+  --header-height: 4rem;
+}
+
+/* Fluid scaling system constants and function are defined in typography.css */
+
+/* Spacing utility classes using the universal system */
+.space-3xl {
+  --mobile-size: 4rem;   /* 64px */
+  --space-3xl-desktop: 8rem;  /* 128px */
+}
+
+.space-2xl {
+  --mobile-size: 3rem;   /* 48px */
+  --desktop-size: 6rem;  /* 96px */
+}
+
+.space-xl {
+  --mobile-size: 2.5rem; /* 40px */
+  --desktop-size: 5rem;  /* 80px */
+}
+
+.space-lg {
+  --mobile-size: 2rem;   /* 32px */
+  --desktop-size: 4rem;  /* 64px */
+}
+
+.space-md {
+  --mobile-size: 1.5rem; /* 24px */
+  --desktop-size: 3rem;  /* 48px */
+}
+
+.space-sm {
+  --mobile-size: 1rem;   /* 16px */
+  --desktop-size: 2rem;  /* 32px */
+}
+
+.space-xs {
+  --mobile-size: 0.75rem; /* 12px */
+  --desktop-size: 1.5rem; /* 24px */
+}
+
+.space-2xs {
+  --mobile-size: 0.5rem;  /* 8px */
+  --desktop-size: 1rem;   /* 16px */
+}
+
+.space-3xs {
+  --mobile-size: 0.25rem; /* 4px */
+  --desktop-size: 0.5rem; /* 8px */
+}
