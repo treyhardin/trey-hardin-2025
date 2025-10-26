@@ -14,7 +14,8 @@ export default defineConfig({
       dataset: 'production',
       useCdn: false, // See note on using the CDN
       studioBasePath: '/admin',
-    }), 
+      // studioBasePath removed - studio hosted separately
+    }),
     react()
   ],
   adapter: cloudflare({
