@@ -1,25 +1,24 @@
 ---
-const id = Math.random().toString(36).substring(2, 15);
-console.log(id);
+const { project, key } = Astro.props;
 ---
-<a class="project-card" href="/projects/" id={`project-card-${id}`}>
-  <p class="h6">DW Drums</p>
+<a class="project-card" href="/projects/" id={`project-card-${key}`}>
+  <p class="h6">{project.title}</p>
   <div class="tags">
-    <span class="tag caption">Web</span>
-    <span class="tag caption">Design</span>
-    <span class="tag caption">Development</span>
+    {project.tags.map((tag) => (
+      <span class="tag caption">{tag.title}</span>
+    ))}
   </div>
   <!-- <img class="project-media" src="/snare.png" alt="Project Card" /> -->
    <video class="project-media" muted playsinline>
-    <source src="/snare.webm" type="video/webm">
+    <source src={project.thumbnailVideo.asset.url} type="video/webm">
   </video>
 </a>
 
-<script define:vars={{ id }}>
+<script define:vars={{ key }}>
 
 
   document.addEventListener('astro:page-load', () => {
-    const card = document.getElementById(`project-card-${id}`);
+    const card = document.getElementById(`project-card-${key}`);
     const video = card?.querySelector('.project-media');
     // if (video) {
     //   video.play();

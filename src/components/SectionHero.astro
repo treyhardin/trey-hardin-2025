@@ -44,8 +44,10 @@ const { subheading, button, projects } = Astro.props;
       </svg>
     </div>
     <div class="projects">
-      <ProjectCard />
-      <ProjectCard />
+      {projects.map((project, i) => (
+        <ProjectCard key={i} project={project} />
+      ))}
+      <!-- <ProjectCard /> -->
     </div>
     
     <!-- {subtitle && <p>{subtitle}</p>} -->
