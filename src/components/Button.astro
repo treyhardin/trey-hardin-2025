@@ -1,4 +1,22 @@
 ---
-const { label, url, newTab } = Astro.props;
+const { label, url, newTab, icon } = Astro.props;
+const IconElement = icon ? icon : null;
 ---
-<a href={url} class="button" target={newTab ? "_blank" : "_self"}>{label}</a>
+<a href={url} class="button" target={newTab ? "_blank" : "_self"}>
+  {icon && <IconElement />}
+  {label}
+</a>
+
+<style>
+  .button {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-3xs);
+
+    svg {
+      width: 1.0em;
+    }
+  }
+</style>

@@ -13,9 +13,18 @@ const { navigation, largeLogo } = Astro.props;
     <span class="brand-secondary">Hardin</span>
   </a>
   <nav class="navigation">
-    <button class="navigation-link h6">Work</button>
-    <a class="navigation-link h6" href="/blog">Blog</a>
-    <button class="navigation-link h6">About</button>
+    <button class="navigation-link h6">
+      <span>Work</span>
+      <span class="hover-text" aria-hidden="true">Work</span>
+    </button>
+    <a class="navigation-link h6" href="/blog">
+      <span>Blog</span>
+      <span class="hover-text" aria-hidden="true">Blog</span>
+    </a>
+    <button class="navigation-link h6">
+      <span>About</span>
+      <span class="hover-text" aria-hidden="true">About</span>
+    </button>
   </nav>
 </header>
 
@@ -23,28 +32,33 @@ const { navigation, largeLogo } = Astro.props;
   import { lenis } from '../lib/lenis-provider.js';
   import { throttle } from '../lib/scripts.js';
 
-  const scrollThreshold = window.innerHeight * 0.5;
+  const scrollThreshold = window.innerHeight * 0.8;
 
   document.addEventListener('astro:page-load', () => {
 
     const logo = document.getElementById('logo');
 
     if (lenis && logo && logo.dataset.animateScroll === 'true') {
-      
-      // const handleScroll = throttle((e) => {
-      //   const currentScroll = e.animatedScroll;
-      //   const scrollProgress = Math.floor(Math.min(1, currentScroll / scrollThreshold) * 1000) / 1000;
-      //   logo.style.setProperty('--scroll-progress', scrollProgress.toString());
-      // }, 16); // ~60fps (1000ms / 60fps ≈ 16ms)
+
+      let isLarge = true; // Track current state to avoid unnecessary DOM updates
 
       const handleScroll = throttle((e) => {
         const currentScroll = e.animatedScroll;
-        // const scrollProgress = Math.floor(Math.min(1, currentScroll / scrollThreshold) * 1000) / 1000;
-        currentScroll <= scrollThreshold ? logo.dataset.animateScroll = 'true' : logo.dataset.animateScroll = 'false';
-        // logo.style.setProperty('--scroll-progress', scrollProgress.toString());
+        const shouldBeLarge = currentScroll <= scrollThreshold;
+
+        // Only update if state changed (avoids unnecessary reflows)
+        if (shouldBeLarge !== isLarge) {
+          logo.dataset.animateScroll = shouldBeLarge ? 'true' : 'false';
+          isLarge = shouldBeLarge;
+        }
       }, 16); // ~60fps (1000ms / 60fps ≈ 16ms)
 
       lenis.on('scroll', handleScroll);
+
+      // Cleanup scroll listener on navigation
+      document.addEventListener('astro:before-preparation', () => {
+        lenis.off('scroll', handleScroll);
+      }, { once: true });
     }
   });
 
@@ -72,11 +86,13 @@ const { navigation, largeLogo } = Astro.props;
       gap: 0.25ch;
       transition: font-size var(--anim-md);
       overflow: hidden;
+      will-change: font-size; /* Hint browser to optimize */
 
       .brand-secondary {
         translate: 0 0%;
         transition: translate var(--anim-md) 0.4s;
         display: inline-block;
+        will-change: translate; /* GPU acceleration for transform */
       }
 
       &[data-animate-scroll="true"] {
@@ -107,6 +123,19 @@ const { navigation, largeLogo } = Astro.props;
         justify-content: space-between;
         align-items: center;
         background-color: var(--color-background);
+        position: relative;
+        overflow: hidden;
+
+        .hover-text {
+          position: absolute;
+          inset: 0;
+          padding: var(--space-3xs) var(--space-2xs);
+          color: var(--color-background);
+          text-align: left;
+          background-color: var(--color-foreground);
+          clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+          transition: clip-path var(--anim-md);
+        }
 
         &::after {
           content: "";
@@ -115,8 +144,37 @@ const { navigation, largeLogo } = Astro.props;
           border: 1px solid var(--color-foreground);
           flex: 0 0 0.2em;
           aspect-ratio: 1 / 1;
+          z-index: 3;
+          animation: blink 0.8s infinite;
+          animation-play-state: paused;
+        }
+
+        &:hover {
+          .hover-text {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+          }
+
+          &::after {
+            border-color: var(--color-background);
+            animation-play-state: running;
+          }
         }
       }
+    }
+  }
+
+  @keyframes blink {
+    0% {
+      background-color: var(--color-foreground);
+    }
+    50% {
+      background-color: var(--color-foreground);
+    }
+    51% {
+      background-color: var(--color-background);
+    }
+    100% {
+      background-color: var(--color-background);
     }
   }
 

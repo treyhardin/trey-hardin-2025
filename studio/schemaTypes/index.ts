@@ -8,6 +8,7 @@ import project from './project'
 import settings from './settings'
 import blogTag from './blogTag'
 import sanityImage from '../snippets/sanityImage'
+import button from '../snippets/button'
 
 export const schemaTypes = [
   settings,
@@ -19,5 +20,6 @@ export const schemaTypes = [
   pageHome,
   pageAbout,
   pageContact,
-  sanityImage
+  sanityImage,
+  button
 ]

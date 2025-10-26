@@ -1,8 +1,40 @@
 ---
+const id = Math.random().toString(36).substring(2, 15);
+console.log(id);
 ---
-<div class="project-card">
-  TEST
-</div>
+<a class="project-card" href="/projects/" id={`project-card-${id}`}>
+  <p class="h6">DW Drums</p>
+  <div class="tags">
+    <span class="tag caption">Web</span>
+    <span class="tag caption">Design</span>
+    <span class="tag caption">Development</span>
+  </div>
+  <!-- <img class="project-media" src="/snare.png" alt="Project Card" /> -->
+   <video class="project-media" muted playsinline>
+    <source src="/snare.webm" type="video/webm">
+  </video>
+</a>
+
+<script define:vars={{ id }}>
+
+
+  document.addEventListener('astro:page-load', () => {
+    const card = document.getElementById(`project-card-${id}`);
+    const video = card?.querySelector('.project-media');
+    // if (video) {
+    //   video.play();
+    // }
+    card.addEventListener('mouseenter', () => {
+      video.play();
+    });
+    document.addEventListener('astro:after-swap', () => {
+      card.removeEventListener('mouseenter', () => {
+        video.play();
+      });
+    }, { once: true });
+  });
+
+</script>
 
 <style>
   .project-card {
@@ -11,6 +43,36 @@
     color: var(--color-background);
     border-radius: var(--radius-lg);
     padding: var(--page-margin);
-    aspect-ratio: 3 / 4;
+    /* aspect-ratio: 3 / 4; */
+    /* aspect-ratio: 1 / 1; */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: var(--space-2xs);
+    flex: 0 1 50%;
+
+    .tags {
+      display: flex;
+      flex-direction: row;
+      justify-self: flex-start;
+      gap: var(--space-3xs);
+      flex: 0 0 auto;
+
+      .tag {
+        /* background-color: var(--color-foreground); */
+        color: var(--color-foreground);
+        padding: 0.2em 0.8em;
+        border: 1px solid var(--color-background);
+        border-radius: var(--radius-rounded);
+        color: var(--color-background);
+      }
+    }
+
+    .project-media {
+      flex: 1 1 auto;
+      align-self: stretch;
+      aspect-ratio: 1 / 1;
+    }
   }
 </style>

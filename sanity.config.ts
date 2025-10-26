@@ -11,6 +11,19 @@ export default defineConfig({
   plugins: [structureTool({
     structure: studioStructure
   })],
+  mediaLibrary: {
+    enabled: true,
+  },
+  form: {
+    // Disable the default for image assets
+    image: {
+      assetSources: (sources) => sources.filter((source) => source.name !== 'sanity-default')
+    },
+    // Disable the default for file assets
+    file: {
+      assetSources: (sources) => sources.filter((source) => source.name !== 'sanity-default')
+    }
+  },
   schema: {
     types: schemaTypes
   },

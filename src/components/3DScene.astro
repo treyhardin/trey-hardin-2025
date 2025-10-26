@@ -8,102 +8,172 @@
   import terrainVertexShader from '../shaders/terrain.vert?raw';
   import terrainFragmentShader from '../shaders/terrain.frag?raw';
 
-  // Settings
-  const CAMERA_OFFSET = new THREE.Vector3(0, 1, 5);
+  document.addEventListener('astro:page-load', () => {
 
-  const container = document.getElementById('three-canvas') as HTMLDivElement;
-  let scene: THREE.Scene | null = null;
-  let camera: THREE.PerspectiveCamera | null = null;
-  let renderer: THREE.WebGLRenderer | null = null;
-  let controls: OrbitControls | null = null;
+    // Settings
+    const CAMERA_OFFSET = new THREE.Vector3(0, 1, 5);
 
-  const handleResize = () => {
-    if (!container || !camera || !renderer) return;
-    camera.aspect = container.clientWidth / container.clientHeight;
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    camera.updateProjectionMatrix();
-  }
+    const container = document.getElementById('three-canvas') as HTMLDivElement;
+    if (!container) return;
+
+    let scene: THREE.Scene | null = null;
+    let camera: THREE.PerspectiveCamera | null = null;
+    let renderer: THREE.WebGLRenderer | null = null;
+    let controls: OrbitControls | null = null;
+    let animationId: number | null = null;
+    let terrain: THREE.Mesh | null = null;
+
+    const handleResize = () => {
+      if (!container || !camera || !renderer) return;
+      camera.aspect = container.clientWidth / container.clientHeight;
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      camera.updateProjectionMatrix();
+    }
 
 
-  // Shader uniforms (global variables passed to shader)
-  const terrainUniforms = {
-    uTime: { value: 0 },
-    uElevation: { value: 8.0 }
-  };
+    // Shader uniforms (global variables passed to shader)
+    const terrainUniforms = {
+      uTime: { value: 0 },
+      uElevation: { value: 8.0 }
+    };
 
-  const initScene = () => {
-    scene = new THREE.Scene();
+    const initScene = () => {
+      scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera( 75, container.clientWidth / container.clientHeight, 0.1, 1000 );
-    camera.position.x = CAMERA_OFFSET.x;
-    camera.position.y = CAMERA_OFFSET.y;
-    camera.position.z = CAMERA_OFFSET.z;
+      camera = new THREE.PerspectiveCamera( 75, container.clientWidth / container.clientHeight, 0.1, 1000 );
+      camera.position.x = CAMERA_OFFSET.x;
+      camera.position.y = CAMERA_OFFSET.y;
+      camera.position.z = CAMERA_OFFSET.z;
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize( container.clientWidth, container.clientHeight );
-    renderer.setPixelRatio( window.devicePixelRatio );
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize( container.clientWidth, container.clientHeight );
+      renderer.setPixelRatio( window.devicePixelRatio );
+      renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+      renderer.toneMapping = THREE.NoToneMapping
+      // renderer.toneMapping = THREE.LinearToneMapping;
+      // THREE.colorManagement.enabled = true;
+      // THREE.colorManagement.legacyMode = false;
+      container.appendChild( renderer.domElement );
 
-    container.appendChild( renderer.domElement );
+      controls = new OrbitControls( camera, renderer.domElement );
+      controls.update()
 
-    controls = new OrbitControls( camera, renderer.domElement );
-    controls.update()
+      // Terrain
+      const TERRAIN_SIZE = 50;
+      const TERRAIN_SEGMENTS = 1000;
+      
+      const terrainGeometry = new THREE.PlaneGeometry( TERRAIN_SIZE, TERRAIN_SIZE, TERRAIN_SEGMENTS, TERRAIN_SEGMENTS );
 
-    // Terrain
-    const TERRAIN_SIZE = 50;
-    const TERRAIN_SEGMENTS = 1000;
-    
-    const terrainGeometry = new THREE.PlaneGeometry( TERRAIN_SIZE, TERRAIN_SIZE, TERRAIN_SEGMENTS, TERRAIN_SEGMENTS );
+      // Custom shader material
+      const terrainMaterial = new THREE.ShaderMaterial({
+        wireframe: true,
+        uniforms: terrainUniforms,
+        vertexShader: terrainVertexShader,
+        fragmentShader: terrainFragmentShader
+      });
 
-    // Custom shader material
-    const terrainMaterial = new THREE.ShaderMaterial({
-      wireframe: true,
-      uniforms: terrainUniforms,
-      vertexShader: terrainVertexShader,
-      fragmentShader: terrainFragmentShader
-    });
+      terrain = new THREE.Mesh( terrainGeometry, terrainMaterial );
+      terrain.rotation.x = -Math.PI / 2;
+      scene.add( terrain );
 
-    const terrain = new THREE.Mesh( terrainGeometry, terrainMaterial );
-    terrain.rotation.x = -Math.PI / 2;
-    scene.add( terrain );
+      // const sunlightTarget = new THREE.Object3D();
+      // sunlightTarget.position.set(0, 0, 0);
+      // scene.add(sunlightTarget);
 
-  }
+      // const sunlight = new THREE.SpotLight(0xD37320, 1);
+      // // const sunlight = new THREE.SpotLight(0xFFFEAC, 1);
+      // sunlight.position.set(0, 5, 0);
+      // sunlight.target = sunlightTarget;
+      // sunlight.castShadow = true;
+      // sunlight.intensity = 100;
+      // scene.add(sunlight);
 
-  // const initActors = () => {
-  //   if (!scene) return;
-  //   const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  //   const material = new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } );
-  //   const cube = new THREE.Mesh( geometry, material );
+      // const ball = new THREE.SphereGeometry(2, 10, 10);
+      // const ballMat = new THREE.MeshToonMaterial({ color: 0xD37320 });
+      // const ballMesh = new THREE.Mesh(ball, ballMat);
+      // ballMesh.position.x = 0;
+      // ballMesh.position.y = 0;
+      // ballMesh.position.z = 0;
+      // scene.add(ballMesh);
 
-  //   scene.add( cube );
-  //   window.addEventListener("tick", () => {
-  //     cube.rotation.x += 0.01;
-  //     cube.rotation.y += 0.01;
-  //   });
-  // }
+      // return { terrainGeometry, terrainMaterial };
+    }
 
-  initScene();
-  handleResize();
-  // initActors();
+    // const initActors = () => {
+    //   if (!scene) return;
+    //   const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+    //   const material = new THREE.MeshBasicMaterial( { color: 0x00ff00, wireframe: true } );
+    //   const cube = new THREE.Mesh( geometry, material );
 
-  window.addEventListener('resize', handleResize);
+    //   scene.add( cube );
+    //   window.addEventListener("tick", () => {
+    //     cube.rotation.x += 0.01;
+    //     cube.rotation.y += 0.01;
+    //   });
+    // }
 
-  const animate = () => {
-    requestAnimationFrame(animate);
+    const resources = initScene();
+    handleResize();
 
-    // Update time uniform for animated terrain
-    terrainUniforms.uTime.value += 0.01;
+    window.addEventListener('resize', handleResize);
 
-    renderer?.render(scene as THREE.Scene, camera as THREE.PerspectiveCamera);
-    controls?.update();
-  }
+    const animate = () => {
+      animationId = requestAnimationFrame(animate);
 
-  animate();
+      // Update time uniform for animated terrain
+      terrainUniforms.uTime.value += 0.01;
 
-  // Handle window resize
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera?.updateProjectionMatrix();
-    renderer?.setSize(window.innerWidth, window.innerHeight);
+      renderer?.render(scene as THREE.Scene, camera as THREE.PerspectiveCamera);
+      controls?.update();
+    }
+
+    animate();
+
+    // Cleanup function to properly dispose Three.js resources
+    const cleanup = () => {
+      // Stop animation loop
+      if (animationId !== null) {
+        cancelAnimationFrame(animationId);
+      }
+
+      // Remove event listener
+      window.removeEventListener('resize', handleResize);
+
+      // Dispose geometries and materials
+      if (resources) {
+        resources.terrainGeometry.dispose();
+        resources.terrainMaterial.dispose();
+      }
+
+      // Dispose controls
+      if (controls) {
+        controls.dispose();
+      }
+
+      // Dispose renderer
+      if (renderer) {
+        renderer.dispose();
+        renderer.forceContextLoss();
+        if (renderer.domElement.parentNode) {
+          renderer.domElement.parentNode.removeChild(renderer.domElement);
+        }
+      }
+
+      // Clear scene
+      if (scene) {
+        scene.clear();
+      }
+
+      // Nullify references
+      scene = null;
+      camera = null;
+      renderer = null;
+      controls = null;
+      terrain = null;
+    };
+
+    // Cleanup on navigation
+    document.addEventListener('astro:after-swap', cleanup, { once: true });
   });
 
 </script>

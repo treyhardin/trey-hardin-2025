@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import { defineVideoField } from 'sanity/media-library'
 
 export default defineType({
   name: 'project',
@@ -26,6 +27,10 @@ export default defineType({
       options: {
         hotspot: true,
       },
+    }),
+    defineVideoField({
+      name: 'thumbnailVideo',
+      title: 'Thumbnail Video',
     }),
     defineField({
       name: 'categories',

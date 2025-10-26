@@ -8,10 +8,11 @@ import Hero from "../components/SectionHero.astro";
 import ThreeScene from "../components/3DScene.astro";
 
 const homePageSettings = await sanityClient.fetch(`*[_type == "pageHome"][0]{
-	title,
-	subtitle,
-	heroImage{${imageQuery}},
+	subheading,
+	button,
+	projects[]->{ title }
 }`)
+console.log(homePageSettings);
 ---
 <LayoutGlobal
 	title="Home"
@@ -20,8 +21,9 @@ const homePageSettings = await sanityClient.fetch(`*[_type == "pageHome"][0]{
 >
 
 	<Hero 
-		title={homePageSettings.title}
-		subtitle={homePageSettings.subtitle}
+		subheading={homePageSettings.subheading}
+		button={homePageSettings.button}
+		projects={homePageSettings.projects}
 	/>
 	<!-- <ThreeScene /> -->
 	<!-- <VideoStream /> -->

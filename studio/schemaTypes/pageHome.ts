@@ -6,24 +6,21 @@ export default defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'heroImage',
-      title: 'Hero image',
-      type: 'sanityImage',
-    }),
-    defineField({
-      name: 'title',
-      title: 'Title',
+      name: 'subheading',
+      title: 'Subheading',
       type: 'string',
     }),
     defineField({
-      name: 'subtitle',
-      title: 'Subtitle',
-      type: 'string',
+      name: 'button',
+      title: 'Button',
+      type: 'button',
     }),
     defineField({
-      name: 'body',
-      title: 'Body',
-      type: 'blockContent',
+      name: 'projects',
+      title: 'Projects',
+      type: 'array',
+      of: [{type: 'reference', to: {type: 'project'}}],
+      validation: Rule => Rule.required().max(3),
     }),
   ],
 
