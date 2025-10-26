@@ -11,6 +11,9 @@ export default defineConfig({
   plugins: [structureTool({
     structure: studioStructure
   })],
+  mediaLibrary: {
+    enabled: true,
+  },
   schema: {
     types: schemaTypes
   },
