@@ -30,8 +30,9 @@ export default defineConfig({
         "react-dom/server": "react-dom/server.edge",
       },
     },
-    ssr: {
-      external: ['node:buffer', 'node:util', 'node:worker_threads']
-    },
+    site: 'https://2025.treyhardin.com/',
+    // ssr: {
+    //   external: ['node:buffer', 'node:util', 'node:worker_threads']
+    // },
   },
 });
