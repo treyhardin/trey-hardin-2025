@@ -1,5 +1,5 @@
 // ./deskStructure.js
-import { BlockContentIcon, CaseIcon, CogIcon, EnvelopeIcon, HomeIcon, UserIcon, TagsIcon } from '@sanity/icons'
+import { CaseIcon, CogIcon, EnvelopeIcon, HomeIcon, UserIcon, TagsIcon } from '@sanity/icons'
 
 export const studioStructure = (S) =>
   S.list()
@@ -10,12 +10,6 @@ export const studioStructure = (S) =>
         .icon(CaseIcon),
       S.documentTypeListItem('projectTag')
         .title('Project Tags')
-        .icon(TagsIcon),
-      S.documentTypeListItem('blogPost')
-        .title('Blog Posts')
-        .icon(BlockContentIcon),
-      S.documentTypeListItem('blogTag')
-        .title('Blog Tags')
         .icon(TagsIcon),
       S.listItem().title('Home')
         .child(

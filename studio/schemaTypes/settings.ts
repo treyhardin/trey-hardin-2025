@@ -60,13 +60,8 @@ export default defineType({
 
   preview: {
     select: {
-      title: 'TTESTS',
-      author: 'author.name',
+      title: 'title',
       media: 'mainImage',
     },
-    // prepare(selection) {
-    //   const {author} = selection
-    //   return {...selection, title: "Site Settings"}
-    // },
   },
 })

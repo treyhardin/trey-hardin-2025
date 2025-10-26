@@ -23,16 +23,4 @@ export default defineType({
       validation: Rule => Rule.required().max(3),
     }),
   ],
-
-  preview: {
-    select: {
-      title: 'title',
-      author: 'author.name',
-      media: 'mainImage',
-    },
-    prepare(selection) {
-      const {author} = selection
-      return {...selection, title: "Home Page"}
-    },
-  },
 })

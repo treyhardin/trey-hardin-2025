@@ -1,5 +1,4 @@
 import {defineField, defineType} from 'sanity'
-import { defineVideoField } from 'sanity/media-library'
 
 export default defineType({
   name: 'project',
@@ -28,10 +27,6 @@ export default defineType({
         hotspot: true,
       },
     }),
-    defineVideoField({
-      name: 'thumbnailVideo',
-      title: 'Thumbnail Video',
-    }),
     defineField({
       name: 'categories',
       title: 'Categories',
@@ -53,12 +48,7 @@ export default defineType({
   preview: {
     select: {
       title: 'title',
-      author: 'author.name',
       media: 'mainImage',
-    },
-    prepare(selection) {
-      const {author} = selection
-      return {...selection, subtitle: author && `by ${author}`}
     },
   },
 })

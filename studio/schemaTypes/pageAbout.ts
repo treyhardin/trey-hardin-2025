@@ -33,15 +33,4 @@ export default defineType({
       type: 'blockContent',
     }),
   ],
-
-  preview: {
-    select: {
-      title: 'TEST',
-      // author: 'author.name',
-      // media: 'mainImage',
-    },
-    prepare(selection) {
-      return {title: "About Page"}
-    },
-  },
 })
